@@ -1,89 +1,139 @@
-# Financial Transaction SMS Alert Notification System  
-*Kotlin & Ktor Implementation*
+# Enterprise Notification Platform
 
-## Overview
+A cloud-native notification platform designed to demonstrate reliable, event-driven backend and platform engineering.
 
-This project is a **production-grade SMS Alert Notification System** built using **Kotlin** and **Ktor**, designed for financial institutions to reliably notify customers of debit and credit transactions in real time.
+The initial business use case is financial transaction notifications delivered through SMS. The architecture is intentionally designed so additional notification channels can be introduced without coupling the core domain to a specific provider.
 
-The system addresses critical shortcomings commonly observed in third-party SMS alert solutions, including missed alerts, lack of retries, tight coupling with transaction processing, and poor observability.
+## Engineering goals
 
-This repository serves as a **portfolio-quality reference implementation** demonstrating backend engineering best practices for **banks, fintech companies, and regulated financial environments**.
+- Reliable asynchronous notification processing
+- Transactional persistence and event publication
+- Idempotent processing under at-least-once delivery
+- Bounded retry and dead-letter handling
+- Provider abstraction and failure isolation
+- Secure handling of notification data
+- Production-oriented observability
+- Containerized local development
+- Kubernetes deployment
+- Infrastructure as Code
+- Automated CI/CD
 
----
+## Current status
 
-## Business Context
+This repository is currently at **Milestone 0 — Foundation**.
 
-In modern banking systems, SMS alerts are a **customer trust and compliance requirement**, not merely a convenience. Failures in alert delivery can lead to:
+| Capability | Status |
+|---|---|
+| Repository architecture | In progress |
+| Kotlin/Ktor application | Planned |
+| PostgreSQL persistence | Planned |
+| Transactional outbox | Planned |
+| Kafka event processing | Planned |
+| Idempotency | Planned |
+| Retry / DLQ | Planned |
+| Observability | Planned |
+| Security hardening | Planned |
+| Kubernetes | Planned |
+| Terraform / AWS | Planned |
+| CI/CD | Planned |
 
-- Customer complaints and reputational damage
-- Increased fraud exposure
-- Regulatory scrutiny
-- Operational overhead for support teams
+The project status is deliberately kept aligned with implemented code.
 
-This system is architected to meet **enterprise-grade expectations** around reliability, auditability, and extensibility.
+## Architecture
 
----
+The target architecture is:
 
-## Core Objectives
+```text
+                         +----------------------+
+                         | Transaction System   |
+                         +----------+-----------+
+                                    |
+                                    v
+                         +----------------------+
+                         | Notification API     |
+                         | Kotlin + Ktor        |
+                         +----------+-----------+
+                                    |
+                         +----------v-----------+
+                         | PostgreSQL            |
+                         | notifications         |
+                         | outbox_events         |
+                         | attempts              |
+                         +----------+-----------+
+                                    |
+                             Transactional
+                                Outbox
+                                    |
+                                    v
+                         +----------------------+
+                         | Kafka                |
+                         | events / retry / DLQ |
+                         +----------+-----------+
+                                    |
+                                    v
+                         +----------------------+
+                         | Notification Worker  |
+                         +----------+-----------+
+                                    |
+                                    v
+                         +----------------------+
+                         | Provider Adapter     |
+                         +----------+-----------+
+                                    |
+                                    v
+                         +----------------------+
+                         | External SMS Gateway |
+                         +----------------------+
+```
 
-- Ensure **reliable delivery** of SMS alerts after financial transactions
-- Decouple transaction processing from notification delivery
-- Provide **observable, auditable, and retryable** SMS workflows
-- Support multiple SMS providers with failover capability
-- Demonstrate Kotlin-based backend expertise using Ktor
+## Repository structure
 
----
+```text
+smsafrik/
+├── .github/
+│   └── workflows/
+├── docs/
+│   ├── architecture/
+│   ├── adr/
+│   ├── runbooks/
+│   └── testing/
+├── services/
+│   └── notification/
+│       └── src/
+├── infrastructure/
+├── gradle/
+├── build.gradle.kts
+├── settings.gradle.kts
+├── gradle.properties
+├── docker-compose.yml
+└── README.md
+```
 
-## Key Features
+## Development principles
 
-- Real-time debit and credit SMS alerts
-- Event-driven, asynchronous architecture
-- Idempotent message processing
-- Automatic retries with exponential backoff
-- Dead-letter queue for failed messages
-- Pluggable SMS provider abstraction
-- Secure handling of sensitive financial data
-- Full audit trail for SMS delivery events
+1. Implement before claiming.
+2. Prefer simple boundaries that solve real problems.
+3. Keep domain logic independent of infrastructure.
+4. Treat PostgreSQL as authoritative application state.
+5. Treat Kafka delivery as at-least-once.
+6. Design for failure, not only the happy path.
+7. Never log secrets or unnecessary financial data.
+8. Test behavior and failure modes.
+9. Document significant architectural decisions.
+10. Keep every milestone cumulative and runnable.
 
----
+## Roadmap
 
-## High-Level Architecture
-
-### System Flow
-
-```mermaid
-flowchart LR
-    A[Core Banking / Transaction Service]
-    B[Event Publisher]
-    C[Message Broker]
-    D[SMS Notification Service (Ktor)]
-    E[SMS Gateway Provider]
-    F[Customer Mobile Device]
-
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-
-flowchart TB
-    subgraph Notification Service
-        API[Ktor REST API]
-        Worker[Background Workers]
-        Formatter[Message Formatter]
-        Retry[Retry Engine]
-        Audit[Audit Logger]
-    end
-
-    Broker[Message Broker]
-    DB[(PostgreSQL)]
-    SMS[SMS Provider]
-
-    Broker --> Worker
-    Worker --> Formatter
-    Formatter --> SMS
-    Worker --> Retry
-    Worker --> Audit
-    Audit --> DB
-
-
+- Milestone 0 — Foundation
+- Milestone 1 — Notification Domain and API
+- Milestone 2 — PostgreSQL Persistence
+- Milestone 3 — Transactional Outbox
+- Milestone 4 — Kafka and Notification Worker
+- Milestone 5 — Reliability
+- Milestone 6 — Observability
+- Milestone 7 — Security
+- Milestone 8 — Containerized Platform
+- Milestone 9 — Kubernetes
+- Milestone 10 — CI/CD
+- Milestone 11 — Terraform and AWS
+- Milestone 12 — Production Hardening
